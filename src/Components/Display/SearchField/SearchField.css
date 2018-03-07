@@ -1,0 +1,35 @@
+:root {
+  --searchInputPlaceholderColor: #484848;
+}
+
+#searchInput {
+  background: #dcdce2;
+  width: 90%;
+  border: none;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: bold;
+  color: #1c1e2a;
+}
+
+#searchInput::-webkit-input-placeholder {
+  /* WebKit, Blink, Edge */
+  font-weight: normal;
+  color: var(--searchInputPlaceholderColor);
+}
+#searchInput:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+  font-weight: normal;
+  color: var(--searchInputPlaceholderColor);
+  opacity: 1;
+}
+#searchInput::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+  font-weight: normal;
+  color: var(--searchInputPlaceholderColor);
+  opacity: 1;
+}
+#searchInput:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  font-weight: normal;
+  color: var(--searchInputPlaceholderColor);
+}
