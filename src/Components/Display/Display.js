@@ -2,9 +2,41 @@ import React, { Component } from 'react';
 import './Display.css';
 import SearchField from './SearchField/SearchField';
 import * as VBBApiActions from '../../Actions/VBBApiActions';
+import VBBApiStore from "../../Stores/VBBApiStore";
 
 
 class Display extends Component {
+
+  constructor() {
+    super();
+
+    this.state = {
+      departures: [],
+    };
+
+    this.getDepartures = this.getDepartures.bind(this);
+  }
+
+  componentWillMount() {
+    VBBApiStore.on('departureChange', this.getDepartures);
+  }
+
+  componentWillUnmount() {
+    VBBApiStore.removeListener('departureChange', this.getDepartures);
+  }
+
+  componentDidMount() {
+    VBBApiActions.getDepartures(this.props.index);
+    setInterval(() => {
+      VBBApiActions.getDepartures(this.props.index);
+    }, 60000)
+  }
+
+  getDepartures() {
+    this.setState({
+      departures: VBBApiStore.getDepartures(this.props.index),
+    });
+  }
 
   handleRemoveDisplay() {
     VBBApiActions.removeDisplay(this.props.index);
@@ -21,32 +53,35 @@ class Display extends Component {
             <td>Ziel</td>
             <td colSpan="2">Abfahrt in</td>
           </tr>
-          <tr className="display-row">
-            <td className="gray-side-bar"/>
-            <td>M5</td>
-            <td>S+U Hauptbahnhof</td>
-            <td>3 min</td>
-            <td className="gray-side-bar"/>
-          </tr>
-          <tr className="display-row">
-            <td className="gray-side-bar"/>
-            <td>M8</td>
-            <td>U-Bahnhof Schwarzkopfstr.</td>
-            <td>14 min</td>
-            <td className="gray-side-bar"/>
-          </tr>
-          <tr className="display-row">
-            <td className="gray-side-bar"/>
-            <td/>
-            <td/>
-            <td/>
-            <td className="gray-side-bar"/>
-          </tr>
+          {this.state.departures.map((departure, index) => {
+            const now = new Date();
+            const departureTime = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              now.getDate(),
+              departure.time.split(':')[0],
+              departure.time.split(':')[1],
+              0
+            );
+            const timeUntilDeparture = Math.round((departureTime - now) / 1000 / 60);
+            return (
+              <tr key={index} className="display-row">
+                <td className="gray-side-bar"/>
+                <td>{departure.name}</td>
+                <td>{departure.direction}</td>
+                <td>{timeUntilDeparture}</td>
+                <td className="gray-side-bar"/>
+              </tr>
+            )
+          })}
           <tr className="white-bars">
             <td/>
-            <td colSpan="4">
+            <td colSpan="2">
               <SearchField display={this.props.display}
                            index={this.props.index} />
+            </td>
+            <td colSpan="2">
+              types
             </td>
           </tr>
           </tbody>

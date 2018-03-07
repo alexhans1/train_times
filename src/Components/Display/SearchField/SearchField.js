@@ -22,13 +22,12 @@ class SearchField extends Component {
     this.searchLocationsTimeout = null;
   }
 
-
   componentWillMount() {
-    VBBApiStore.on('change', this.getLocations);
+    VBBApiStore.on('locationChange', this.getLocations);
   }
 
   componentWillUnmount() {
-    VBBApiStore.removeListener('change', this.getLocations);
+    VBBApiStore.removeListener('locationChange', this.getLocations);
   }
 
   getLocations() {

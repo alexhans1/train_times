@@ -45,14 +45,13 @@ class VBBApiStore extends EventEmitter {
     return this.displays;
   }
 
-
   async searchLocations (input, displayIndex) {
     try {
       await fetch('http://localhost:3100/vbb/searchLocations/' + input)
       .then(res => res.json())
       .then(locations => {
         this.displays[displayIndex].locations = locations;
-        this.emit('change');
+        this.emit('locationChange');
       });
     } catch (ex) {
       console.error(ex);
@@ -60,7 +59,25 @@ class VBBApiStore extends EventEmitter {
   }
 
   getLocations (displayIndex) {
-    return this.displays[displayIndex].locations ||[];
+    return this.displays[displayIndex].locations || [];
+  }
+
+  async getDeparturesOverApi (displayIndex) {
+    console.log(displayIndex);
+    try {
+      await fetch('http://localhost:3100/vbb/getDepartures/' + this.displays[displayIndex].extId)
+      .then(res => res.json())
+      .then(departures => {
+        this.displays[displayIndex].departures = departures;
+        this.emit('departureChange');
+      });
+    } catch (ex) {
+      console.error(ex);
+    }
+  }
+
+  getDepartures (displayIndex) {
+    return this.displays[displayIndex].departures || [];
   }
 
   handleAction(action) {
@@ -69,10 +86,10 @@ class VBBApiStore extends EventEmitter {
         this.searchLocations(action.input, action.displayIndex);
         break;
       }
-      // case "GET_DEPARTURES": {
-      //   this.createEvent(action.institution, action.eventType, action.date, action.password, action.image);
-      //   break;
-      // }
+      case "GET_DEPARTURES": {
+        this.getDeparturesOverApi(action.displayIndex);
+        break;
+      }
       case "ADD_DISPLAY": {
         this.addDisplay(action.newDisplay);
         break;

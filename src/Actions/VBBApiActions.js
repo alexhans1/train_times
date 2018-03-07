@@ -1,9 +1,9 @@
 import dispatcher from "../dispatcher";
 
-export function getDepartures(id) {
+export function getDepartures(displayIndex) {
   dispatcher.dispatch({
     type: "GET_DEPARTURES",
-    id,
+    displayIndex,
   });
 }
 
