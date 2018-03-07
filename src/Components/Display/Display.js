@@ -65,7 +65,8 @@ class Display extends Component {
               departure.time.split(':')[1],
               0
             );
-            const timeUntilDeparture = Math.round((departureTime - now) / 1000 / 60);
+            let timeUntilDeparture = Math.round((departureTime - now) / 1000 / 60);
+            if (timeUntilDeparture < 0) timeUntilDeparture += 26 * 60; // adjust for day break
             return (
               <tr key={index} className="display-row">
                 <td className="gray-side-bar"/>
