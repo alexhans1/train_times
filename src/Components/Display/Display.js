@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import './Display.css';
 import SearchField from './SearchField/SearchField';
+import * as VBBApiActions from '../../Actions/VBBApiActions';
+
 
 class Display extends Component {
 
   handleRemoveDisplay() {
-    this.props.handleRemoveDisplay(this.props.index);
+    VBBApiActions.removeDisplay(this.props.index);
   }
 
   render() {
@@ -43,9 +45,8 @@ class Display extends Component {
           <tr className="white-bars">
             <td/>
             <td colSpan="4">
-              <SearchField key={this.props.key}
-                           index={this.props.index}
-                           handleUpdateDisplay={this.props.handleUpdateDisplay} />
+              <SearchField display={this.props.display}
+                           index={this.props.index} />
             </td>
           </tr>
           </tbody>

@@ -1,45 +1,36 @@
 import React, { Component } from 'react';
 import Display from './Components/Display/Display';
 import './App.css';
+import VBBApiStore from './Stores/VBBApiStore';
+import * as VBBApiActions from './Actions/VBBApiActions';
 
 class App extends Component {
   constructor() {
     super();
-    if (!localStorage.getItem('stations')) {
-      // initialize with the two example events
-      localStorage.setItem('stations', JSON.stringify([]));
-    }
     this.state = {
-      savedDisplays: JSON.parse(localStorage.getItem('stations')),
+      savedDisplays: JSON.parse(localStorage.getItem('displays')) || [],
     };
+
+    this.getDisplays = this.getDisplays.bind(this);
   }
 
-  handleAddDisplay() {
-    let tmpState = this.state.savedDisplays;
-    tmpState.push({
+  componentWillMount() {
+    VBBApiStore.on('displayChange', this.getDisplays);
+  }
+
+  componentWillUnmount() {
+    VBBApiStore.removeListener('displayChange', this.getDisplays);
+  }
+
+  getDisplays() {
+    this.setState({
+      savedDisplays: VBBApiStore.getDisplays(),
+    });
+  }
+
+  static handleAddDisplay() {
+    VBBApiActions.addDisplay({
       key: Date.now(),
-    });
-    localStorage.setItem('stations', JSON.stringify(tmpState));
-    this.setState({
-      savedDisplays: tmpState,
-    });
-  }
-
-  handleUpdateDisplay(index, editedDisplay) {
-    let tmpState = this.state.savedDisplays;
-    tmpState[index] = editedDisplay;
-    localStorage.setItem('stations', JSON.stringify(tmpState));
-    this.setState({
-      savedDisplays: tmpState,
-    });
-  }
-
-  handleRemoveDisplay(index) {
-    let tmpState = this.state.savedDisplays;
-    tmpState.splice(index, 1);
-    localStorage.setItem('stations', JSON.stringify(tmpState));
-    this.setState({
-      savedDisplays: tmpState,
     });
   }
 
@@ -48,13 +39,13 @@ class App extends Component {
       <div className={"container-fluid"}>
         <div className="row">
           {this.state.savedDisplays.map((display, index) => {
-            return <Display key={display.key} station={display.station} index={index}
-                            handleUpdateDisplay={this.handleUpdateDisplay.bind(this)}
-                            handleRemoveDisplay={this.handleRemoveDisplay.bind(this)}/>
+            return <Display key={display.key}
+                            display={display}
+                            index={index}/>
           })}
           <div className="col-12 col-lg-6 mb-3 d-flex justify-content-center align-items-center">
             <button className="btn btn-outline-success btn-lg"
-                    onClick={this.handleAddDisplay.bind(this)}>+</button>
+                    onClick={App.handleAddDisplay.bind(this)}>+</button>
           </div>
         </div>
       </div>

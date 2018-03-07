@@ -4,29 +4,54 @@ import dispatcher from "../dispatcher";
 class VBBApiStore extends EventEmitter {
   constructor() {
     super();
-    this.locations = [];
-    this.displays = [];
-
-    this.baseURL = 'http://demo.hafas.de/openapi/vbb-proxy/';
-    this.accessId = 'alexander-hans-a507-1345a40d89c5';
+    if (!localStorage.getItem('displays')) {
+      // initialize with the two example events
+      localStorage.setItem('displays', JSON.stringify([]));
+    }
+    this.displays = JSON.parse(localStorage.getItem('displays')) || [];
   }
 
-  buildRequest (path, parameterObj = {}) {
-    console.log(parameterObj);
-    let url = this.baseURL + path + '?accessId=' + this.accessId + 'format=json';
-    Object.keys(parameterObj).forEach((key) => {
-      console.log(key, parameterObj[key]);
-      url += '&' + key + '=' + parameterObj[key];
-    });
-    return url;
+  addDisplay (newDisplay) {
+    try {
+      this.displays.push(newDisplay);
+      localStorage.setItem('displays', JSON.stringify(this.displays));
+      this.emit('displayChange');
+    } catch (ex) {
+      console.error(ex);
+    }
   }
 
-  async searchLocations (input) {
+  removeDisplay (displayIndex) {
+    try {
+      this.displays.splice(displayIndex, 1);
+      localStorage.setItem('displays', JSON.stringify(this.displays));
+      this.emit('displayChange');
+    } catch (ex) {
+      console.error(ex);
+    }
+  }
+
+  updateDisplay (displayIndex, updatedDisplay) {
+    try {
+      this.displays[displayIndex] = updatedDisplay;
+      localStorage.setItem('displays', JSON.stringify(this.displays));
+      this.emit('displayChange');
+    } catch (ex) {
+      console.error(ex);
+    }
+  }
+
+  getDisplays () {
+    return this.displays;
+  }
+
+
+  async searchLocations (input, displayIndex) {
     try {
       await fetch('http://localhost:3100/vbb/searchLocations/' + input)
       .then(res => res.json())
       .then(locations => {
-        this.locations = locations;
+        this.displays[displayIndex].locations = locations;
         this.emit('change');
       });
     } catch (ex) {
@@ -34,24 +59,32 @@ class VBBApiStore extends EventEmitter {
     }
   }
 
-  getLocations () {
-    return this.locations;
+  getLocations (displayIndex) {
+    return this.displays[displayIndex].locations ||[];
   }
 
   handleAction(action) {
     switch (action.type){
       case "SEARCH_LOCATION": {
-        this.searchLocations(action.input);
+        this.searchLocations(action.input, action.displayIndex);
         break;
       }
       // case "GET_DEPARTURES": {
       //   this.createEvent(action.institution, action.eventType, action.date, action.password, action.image);
       //   break;
       // }
-      // case "UPDATE_EVENT": {
-      //   this.updateEvent(action.event);
-      //   break;
-      // }
+      case "ADD_DISPLAY": {
+        this.addDisplay(action.newDisplay);
+        break;
+      }
+      case "REMOVE_DISPLAY": {
+        this.removeDisplay(action.displayIndex);
+        break;
+      }
+      case "UPDATE_DISPLAY": {
+        this.updateDisplay(action.displayIndex, action.updatedDisplay);
+        break;
+      }
       // case "DELETE_EVENT": {
       //   this.deleteEvent(action.id);
       //   break;
