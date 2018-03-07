@@ -9,8 +9,8 @@ class VBBApiStore extends EventEmitter {
       localStorage.setItem('displays', JSON.stringify([]));
     }
     this.displays = JSON.parse(localStorage.getItem('displays')) || [];
-    this.baseUrl = (process.env.NODE_ENV === 'production') ? 'https://berlin-train-times.herokuapp.com/'
-      : 'http://localhost:3100/';
+    this.baseUrl = (process.env.NODE_ENV === 'production') ? 'https://berlin-train-times.herokuapp.com'
+      : 'http://localhost:3100';
   }
 
   addDisplay (newDisplay) {
@@ -65,7 +65,6 @@ class VBBApiStore extends EventEmitter {
   }
 
   async getDeparturesOverApi (displayIndex) {
-    console.log(displayIndex);
     try {
       await fetch(this.baseUrl + '/vbb/getDepartures/' + this.displays[displayIndex].extId)
       .then(res => res.json())

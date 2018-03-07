@@ -26,10 +26,12 @@ class Display extends Component {
   }
 
   componentDidMount() {
-    VBBApiActions.getDepartures(this.props.index);
-    setInterval(() => {
+    if (this.props.display.extId) {
       VBBApiActions.getDepartures(this.props.index);
-    }, 60000)
+      setInterval(() => {
+        VBBApiActions.getDepartures(this.props.index);
+      }, 60000)
+    }
   }
 
   getDepartures() {

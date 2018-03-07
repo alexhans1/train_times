@@ -64,6 +64,7 @@ class SearchField extends Component {
         station: selectedLocation.name,
       };
       VBBApiActions.updateDisplay(this.props.index, updatedDisplay);
+      VBBApiActions.getDepartures(this.props.index);
     }
   }
 
