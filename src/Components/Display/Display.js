@@ -57,21 +57,14 @@ class Display extends Component {
           </tr>
           {this.state.departures.map((departure, index) => {
             const now = new Date();
-            const departureTime = new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              now.getDate(),
-              departure.time.split(':')[0],
-              departure.time.split(':')[1],
-              0
-            );
+            const departureTime = new Date((departure.rtDate || departure.date) + ' ' + (departure.rtTime || departure.time));
             let timeUntilDeparture = Math.round((departureTime - now) / 1000 / 60);
             if (timeUntilDeparture < -100) timeUntilDeparture += 24 * 60; // adjust for day break
-            if (timeUntilDeparture === 0) timeUntilDeparture = '';
+            if (timeUntilDeparture <= 0 && timeUntilDeparture >= -100) timeUntilDeparture = '';
             return (
               <tr key={index} className="display-row">
                 <td className="gray-side-bar"/>
-                <td>{departure.name}</td>
+                <td>{departure.line || departure.name}</td>
                 <td>{departure.direction}</td>
                 <td>{timeUntilDeparture}</td>
                 <td className="gray-side-bar"/>
