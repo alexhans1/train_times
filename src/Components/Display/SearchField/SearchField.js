@@ -65,6 +65,10 @@ class SearchField extends Component {
       };
       VBBApiActions.updateDisplay(this.props.index, updatedDisplay);
       VBBApiActions.getDepartures(this.props.index);
+      setInterval(() => {
+        console.info('Refreshing');
+        VBBApiActions.getDepartures(this.props.index);
+      }, this.props.REFRESH_INTERVAL)
     }
   }
 

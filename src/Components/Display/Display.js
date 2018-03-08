@@ -12,8 +12,10 @@ class Display extends Component {
 
     this.state = {
       departures: [],
+      lastUpdated: null,
     };
 
+    this.REFRESH_INTERVAL = 60 * 1000;
     this.getDepartures = this.getDepartures.bind(this);
   }
 
@@ -29,14 +31,17 @@ class Display extends Component {
     if (this.props.display.extId) {
       VBBApiActions.getDepartures(this.props.index);
       setInterval(() => {
+        console.info('Refreshing');
         VBBApiActions.getDepartures(this.props.index);
-      }, 60000)
+      }, this.REFRESH_INTERVAL)
     }
   }
 
   getDepartures() {
+    const now = new Date();
     this.setState({
       departures: VBBApiStore.getDepartures(this.props.index),
+      lastUpdated: now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes(),
     });
   }
 
@@ -56,6 +61,7 @@ class Display extends Component {
             <td colSpan="2">Abfahrt in</td>
           </tr>
           {this.state.departures.map((departure, index) => {
+            const hasRealTimeData = !!(departure.rtDate && departure.rtTime);
             const now = new Date();
             const departureTime = new Date((departure.rtDate || departure.date) + ' ' + (departure.rtTime || departure.time));
             let timeUntilDeparture = Math.round((departureTime - now) / 1000 / 60);
@@ -66,7 +72,7 @@ class Display extends Component {
                 <td className="gray-side-bar"/>
                 <td>{departure.line || departure.name}</td>
                 <td>{departure.direction}</td>
-                <td>{timeUntilDeparture}</td>
+                <td>{timeUntilDeparture}<span id={'realTimeNote'}>{hasRealTimeData ? 'R' : 'S'}</span></td>
                 <td className="gray-side-bar"/>
               </tr>
             )
@@ -75,10 +81,11 @@ class Display extends Component {
             <td/>
             <td colSpan="2">
               <SearchField display={this.props.display}
+                           REFRESH_INTERVAL={this.REFRESH_INTERVAL}
                            index={this.props.index} />
             </td>
             <td colSpan="2">
-              types
+              {this.state.lastUpdated}
             </td>
           </tr>
           </tbody>

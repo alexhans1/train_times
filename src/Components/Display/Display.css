@@ -61,3 +61,7 @@ table tr:nth-last-child(2) {
   font-size: 9px;
 }
 
+#realTimeNote {
+  font-size: small;
+}
+
