@@ -60,7 +60,8 @@ class SearchField extends Component {
       });
       let updatedDisplay = this.props.display;
       updatedDisplay.extId = selectedLocation.extId;
-      updatedDisplay.station = selectedLocation.station;
+      updatedDisplay.station = selectedLocation.name;
+      updatedDisplay.locations = [];
       VBBApiActions.updateDisplay(this.props.index, updatedDisplay);
       VBBApiActions.getDepartures(this.props.index, this.props.display.products);
       setInterval(() => {
