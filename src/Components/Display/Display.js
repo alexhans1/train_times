@@ -17,6 +17,7 @@ class Display extends Component {
 
     this.REFRESH_INTERVAL = 60 * 1000;
     this.getDepartures = this.getDepartures.bind(this);
+    this.handleSetProducts = this.handleSetProducts.bind(this);
   }
 
   componentWillMount() {
@@ -29,10 +30,10 @@ class Display extends Component {
 
   componentDidMount() {
     if (this.props.display.extId) {
-      VBBApiActions.getDepartures(this.props.index);
+      VBBApiActions.getDepartures(this.props.index, this.props.display.products);
       setInterval(() => {
         console.info('Refreshing');
-        VBBApiActions.getDepartures(this.props.index);
+        VBBApiActions.getDepartures(this.props.index, this.props.display.products);
       }, this.REFRESH_INTERVAL)
     }
   }
@@ -40,13 +41,22 @@ class Display extends Component {
   getDepartures() {
     const now = new Date();
     this.setState({
-      departures: VBBApiStore.getDepartures(this.props.index),
+      departures: VBBApiStore.getDepartures(this.props.index).sort((a, b) => { return (a.rtTime || a.time) > (b.rtTime || b.time) }),
       lastUpdated: now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes(),
     });
   }
 
   handleRemoveDisplay() {
     VBBApiActions.removeDisplay(this.props.index);
+  }
+
+  handleSetProducts(productType) {
+    let tmpProducts = this.props.display.products;
+    const index = tmpProducts.findIndex(({type}) => type === productType);
+    tmpProducts[index].active = !tmpProducts[index].active;
+    this.props.display.products = tmpProducts;
+    VBBApiActions.updateDisplay(this.props.index, this.props.display);
+    VBBApiActions.getDepartures(this.props.index, this.props.display.products);
   }
 
   render() {
@@ -56,9 +66,12 @@ class Display extends Component {
           <tbody>
           <tr className="white-bars">
             <td/>
-            <td>Linie</td>
-            <td>Ziel</td>
-            <td colSpan="2">Abfahrt in</td>
+            <td>Line</td>
+            <td>Destination</td>
+            <td colSpan="2" className={"d-flex justify-content-between"}>
+              Departure in
+              <button id={"removeDisplay"} className="btn btn-outline-dark" onClick={this.handleRemoveDisplay.bind(this)}>x</button>
+            </td>
           </tr>
           {this.state.departures.map((departure, index) => {
             const hasRealTimeData = !!(departure.rtDate && departure.rtTime);
@@ -72,7 +85,11 @@ class Display extends Component {
                 <td className="gray-side-bar"/>
                 <td>{departure.line || departure.name}</td>
                 <td>{departure.direction}</td>
-                <td>{timeUntilDeparture}<span id={'realTimeNote'}>{hasRealTimeData ? 'R' : 'S'}</span></td>
+                <td  data-toggle="tooltip"
+                     data-placement="bottom"
+                     title={hasRealTimeData ? null : 'Time according to schedule. Real time data currently not available.'}>
+                  {timeUntilDeparture}<span id={'realTimeNote'}>{hasRealTimeData ? '' : '*'}</span>
+                </td>
                 <td className="gray-side-bar"/>
               </tr>
             )
@@ -82,17 +99,24 @@ class Display extends Component {
             <td colSpan="2">
               <SearchField display={this.props.display}
                            REFRESH_INTERVAL={this.REFRESH_INTERVAL}
+                           products={this.state.products}
                            index={this.props.index} />
             </td>
             <td colSpan="2">
-              {this.state.lastUpdated}
+              {this.props.display.products.map((product) => {
+                const className = 'productType' + (product.active ? ' active' : '');
+                return (
+                  <span key={product.type}
+                        onClick={() => { this.handleSetProducts(product.type) }}
+                        className={className}>
+                    {product.type}
+                  </span>
+                )
+              })}
             </td>
           </tr>
           </tbody>
         </table>
-        <span id="removeDisplay">
-          <button className="btn btn-outline-danger" onClick={this.handleRemoveDisplay.bind(this)}>x</button>
-        </span>
       </div>
 
     );

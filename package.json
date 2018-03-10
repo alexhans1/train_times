@@ -18,5 +18,4 @@
     "deploy": "gh-pages -d build"
   },
   "homepage": "http://alexhans1.github.io/train_times"
-
 }

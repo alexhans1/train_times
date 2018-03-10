@@ -58,16 +58,14 @@ class SearchField extends Component {
         searchInput: selectedLocation.name,
         locations: [],
       });
-      const updatedDisplay = {
-        key: this.props.display.key,
-        extId: selectedLocation.extId,
-        station: selectedLocation.name,
-      };
+      let updatedDisplay = this.props.display;
+      updatedDisplay.extId = selectedLocation.extId;
+      updatedDisplay.station = selectedLocation.station;
       VBBApiActions.updateDisplay(this.props.index, updatedDisplay);
-      VBBApiActions.getDepartures(this.props.index);
+      VBBApiActions.getDepartures(this.props.index, this.props.display.products);
       setInterval(() => {
         console.info('Refreshing');
-        VBBApiActions.getDepartures(this.props.index);
+        VBBApiActions.getDepartures(this.props.index, this.props.display.products);
       }, this.props.REFRESH_INTERVAL)
     }
   }

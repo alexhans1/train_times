@@ -31,6 +31,7 @@ class App extends Component {
   static handleAddDisplay() {
     VBBApiActions.addDisplay({
       key: Date.now(),
+      products: VBBApiStore.getDefaultProducts(),
     });
   }
 

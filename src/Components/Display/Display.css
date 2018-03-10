@@ -34,7 +34,7 @@ div[class^='col-'], div[class*='col-'] {
 }
 
 .display-row td:first-child, .display-row td:nth-child(5) {
-  padding-right: 50px;
+  /*padding-right: 50px;*/
 }
 .display-row td:nth-child(2) {
   font-family: 'Ozone', 'Georgia', serif !important;
@@ -48,20 +48,30 @@ div[class^='col-'], div[class*='col-'] {
   text-align: end;
   padding-right: 2px;
 }
-table tr:nth-last-child(2) {
-  height: 30px;
-}
 
 #removeDisplay {
-  position: absolute;
-  right: 3px;
-  top: 3px;
+  /*position: absolute;*/
+  /*right: 3px;*/
+  /*top: 3px;*/
 }
-#removeDisplay button {
+#removeDisplay {
   font-size: 9px;
 }
 
 #realTimeNote {
   font-size: small;
+  vertical-align: top;
 }
 
+.productType {
+  width: 10px;
+  height: 10px;
+  border: solid 1px #444;
+  padding: 0 2px;
+  margin: 0 1px;
+  cursor: pointer;
+}
+.active {
+  background-color: #1c1e2a;
+  color: #dcdce2;
+}

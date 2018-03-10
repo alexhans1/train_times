@@ -9,6 +9,38 @@ class VBBApiStore extends EventEmitter {
       localStorage.setItem('displays', JSON.stringify([]));
     }
     this.displays = JSON.parse(localStorage.getItem('displays')) || [];
+    this.defaultProducts = [
+      {
+        type: 'S',
+        value: 0,
+        active: true,
+      },
+      {
+        type: 'U',
+        value: 1,
+        active: true,
+      },
+      {
+        type: 'B',
+        value: 3,
+        active: true,
+      },
+      {
+        type: 'T',
+        value: 2,
+        active: true,
+      },
+      {
+        type: 'F',
+        value: 4,
+        active: true,
+      },
+    ];
+    this.displays.forEach((display, index) => {
+      if (!display.products) {
+        this.displays[index].products = this.defaultProducts;
+      }
+    });
     this.baseUrl = (process.env.NODE_ENV === 'production') ? 'https://berlin-train-times.herokuapp.com'
       : 'http://localhost:3100';
   }
@@ -64,9 +96,16 @@ class VBBApiStore extends EventEmitter {
     return this.displays[displayIndex].locations || [];
   }
 
-  async getDeparturesOverApi (displayIndex) {
+  async getDeparturesOverApi (displayIndex, products) {
+    // calculate products value
+    let productsValue = 0;
+    products.forEach((product) => {
+      productsValue += product.active ? Math.pow(2, product.value) : 0;
+    });
+    if (productsValue === 31) productsValue = '';
+
     try {
-      await fetch(this.baseUrl + '/vbb/getDepartures/' + this.displays[displayIndex].extId)
+      await fetch(this.baseUrl + '/vbb/getDepartures/' + this.displays[displayIndex].extId + '/' + productsValue)
       .then(res => res.json())
       .then(departures => {
         this.displays[displayIndex].departures = departures;
@@ -81,6 +120,10 @@ class VBBApiStore extends EventEmitter {
     return this.displays[displayIndex].departures || [];
   }
 
+  getDefaultProducts () {
+    return this.defaultProducts;
+  }
+
   handleAction(action) {
     switch (action.type){
       case "SEARCH_LOCATION": {
@@ -88,7 +131,7 @@ class VBBApiStore extends EventEmitter {
         break;
       }
       case "GET_DEPARTURES": {
-        this.getDeparturesOverApi(action.displayIndex);
+        this.getDeparturesOverApi(action.displayIndex, action.products);
         break;
       }
       case "ADD_DISPLAY": {

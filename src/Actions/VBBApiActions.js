@@ -1,9 +1,10 @@
 import dispatcher from "../dispatcher";
 
-export function getDepartures(displayIndex) {
+export function getDepartures(displayIndex, products) {
   dispatcher.dispatch({
     type: "GET_DEPARTURES",
     displayIndex,
+    products,
   });
 }
 
