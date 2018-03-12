@@ -60,6 +60,43 @@ class Display extends Component {
   }
 
   render() {
+
+    let rows = [];
+    for (let i = 0; i < 6; i++) {
+      if (this.state.departures[i]) {
+        const departure = this.state.departures[i];
+        const hasRealTimeData = !!(departure.rtDate && departure.rtTime);
+        const now = new Date();
+        const departureTime = new Date((departure.rtDate || departure.date) + ' ' + (departure.rtTime || departure.time));
+        let timeUntilDeparture = Math.round((departureTime - now) / 1000 / 60);
+        if (timeUntilDeparture < -100) timeUntilDeparture += 24 * 60; // adjust for day break
+        if (timeUntilDeparture <= 0 && timeUntilDeparture >= -100) timeUntilDeparture = '';
+        rows.push(
+          <tr key={i} className="display-row">
+            <td className="gray-side-bar"/>
+            <td>{departure.line || departure.name}</td>
+            <td>{departure.direction}</td>
+            <td  data-toggle="tooltip"
+                 data-placement="bottom"
+                 title={hasRealTimeData ? null : 'Time according to schedule. Real time data currently not available.'}>
+              {timeUntilDeparture}<span id={'realTimeNote'}>{hasRealTimeData ? '' : '*'}</span>
+            </td>
+            <td className="gray-side-bar"/>
+          </tr>
+        );
+      } else {
+        rows.push(
+          <tr key={i} className="display-row">
+            <td className="gray-side-bar"/>
+            <td/>
+            <td/>
+            <td/>
+            <td className="gray-side-bar"/>
+          </tr>
+        )
+      }
+    }
+
     return (
       <div className="col-12 col-lg-6 mb-3">
         <table cellPadding="0" cellSpacing="0">
@@ -73,26 +110,8 @@ class Display extends Component {
               <button id={"removeDisplay"} className="btn btn-outline-dark" onClick={this.handleRemoveDisplay.bind(this)}>x</button>
             </td>
           </tr>
-          {this.state.departures.map((departure, index) => {
-            const hasRealTimeData = !!(departure.rtDate && departure.rtTime);
-            const now = new Date();
-            const departureTime = new Date((departure.rtDate || departure.date) + ' ' + (departure.rtTime || departure.time));
-            let timeUntilDeparture = Math.round((departureTime - now) / 1000 / 60);
-            if (timeUntilDeparture < -100) timeUntilDeparture += 24 * 60; // adjust for day break
-            if (timeUntilDeparture <= 0 && timeUntilDeparture >= -100) timeUntilDeparture = '';
-            return (
-              <tr key={index} className="display-row">
-                <td className="gray-side-bar"/>
-                <td>{departure.line || departure.name}</td>
-                <td>{departure.direction}</td>
-                <td  data-toggle="tooltip"
-                     data-placement="bottom"
-                     title={hasRealTimeData ? null : 'Time according to schedule. Real time data currently not available.'}>
-                  {timeUntilDeparture}<span id={'realTimeNote'}>{hasRealTimeData ? '' : '*'}</span>
-                </td>
-                <td className="gray-side-bar"/>
-              </tr>
-            )
+          {rows.map((row) => {
+            return row;
           })}
           <tr className="white-bars">
             <td/>
