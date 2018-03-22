@@ -8,6 +8,8 @@ class VBBApiStore extends EventEmitter {
       // initialize with the two example events
       localStorage.setItem('displays', JSON.stringify([]));
     }
+    this.baseUrl = (process.env.NODE_ENV === 'production') ? 'https://berlin-train-times.herokuapp.com'
+      : 'http://localhost:3100';
     this.displays = JSON.parse(localStorage.getItem('displays')) || [];
     this.defaultProducts = [
       {
@@ -36,16 +38,9 @@ class VBBApiStore extends EventEmitter {
         active: true,
       },
     ];
-    this.displays.forEach((display, index) => {
-      if (!display.products) {
-        this.displays[index].products = this.defaultProducts;
-      }
-    });
-    this.baseUrl = (process.env.NODE_ENV === 'production') ? 'https://berlin-train-times.herokuapp.com'
-      : 'http://localhost:3100';
   }
 
-  addDisplay (newDisplay) {
+  async addDisplay (newDisplay) {
     try {
       this.displays.push(newDisplay);
       localStorage.setItem('displays', JSON.stringify(this.displays));
@@ -69,6 +64,7 @@ class VBBApiStore extends EventEmitter {
     try {
       this.displays[displayIndex] = updatedDisplay;
       localStorage.setItem('displays', JSON.stringify(this.displays));
+      this.getDeparturesOverApi(displayIndex);
       this.emit('displayChange');
     } catch (ex) {
       console.error(ex);
@@ -96,16 +92,26 @@ class VBBApiStore extends EventEmitter {
     return this.displays[displayIndex].locations || [];
   }
 
-  async getDeparturesOverApi (displayIndex, products) {
+  async getDeparturesOverApi (displayIndex) {
+    console.info('Refreshing display #' + (displayIndex + 1));
+
+    const display = this.displays[displayIndex];
+    let fetchUrl = this.baseUrl + '/vbb/getDepartures/' + display.extId;
+
     // calculate products value
     let productsValue = 0;
-    products.forEach((product) => {
+    display.products.forEach((product) => {
       productsValue += product.active ? Math.pow(2, product.value) : 0;
     });
     if (productsValue === 31) productsValue = '';
-
+    if (productsValue) {
+      fetchUrl += '/' + productsValue;
+    }
+    if (display.destinationId) {
+      fetchUrl += '?direction=' + display.destinationId;
+    }
     try {
-      await fetch(this.baseUrl + '/vbb/getDepartures/' + this.displays[displayIndex].extId + '/' + productsValue)
+      await fetch(fetchUrl)
       .then(res => res.json())
       .then(departures => {
         this.displays[displayIndex].departures = departures;
@@ -114,6 +120,14 @@ class VBBApiStore extends EventEmitter {
     } catch (ex) {
       console.error(ex);
     }
+  }
+
+  updateAllDisplayDepartures () {
+    this.displays.forEach((display, index) => {
+      if (display.extId) {
+        this.getDeparturesOverApi(index)
+      }
+    })
   }
 
   getDepartures (displayIndex) {
@@ -146,10 +160,6 @@ class VBBApiStore extends EventEmitter {
         this.updateDisplay(action.displayIndex, action.updatedDisplay);
         break;
       }
-      // case "DELETE_EVENT": {
-      //   this.deleteEvent(action.id);
-      //   break;
-      // }
       default: {
         // do nothing
       }

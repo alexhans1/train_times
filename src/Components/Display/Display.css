@@ -35,7 +35,7 @@ div[class^='col-'], div[class*='col-'] {
 }
 
 .display-row td:first-child, .display-row td:nth-child(5) {
-  /*padding-right: 50px;*/
+  /*paddin0g-right: 50px;*/
 }
 .display-row td:nth-child(2) {
   font-family: 'Ozone', 'Georgia', serif !important;
@@ -68,7 +68,7 @@ div[class^='col-'], div[class*='col-'] {
   width: 10px;
   height: 10px;
   border: solid 1px #444;
-  padding: 0 2px;
+  padding: 0 5px;
   margin: 0 1px;
   cursor: pointer;
 }

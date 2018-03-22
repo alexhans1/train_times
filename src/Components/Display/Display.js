@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './Display.css';
 import SearchField from './SearchField/SearchField';
+import Filter from './Filter/Filter';
 import * as VBBApiActions from '../../Actions/VBBApiActions';
 import VBBApiStore from "../../Stores/VBBApiStore";
 
@@ -15,7 +16,6 @@ class Display extends Component {
       lastUpdated: null,
     };
 
-    this.REFRESH_INTERVAL = 60 * 1000;
     this.getDepartures = this.getDepartures.bind(this);
     this.handleSetProducts = this.handleSetProducts.bind(this);
   }
@@ -31,10 +31,6 @@ class Display extends Component {
   componentDidMount() {
     if (this.props.display.extId) {
       VBBApiActions.getDepartures(this.props.index, this.props.display.products);
-      setInterval(() => {
-        console.info('Refreshing');
-        VBBApiActions.getDepartures(this.props.index, this.props.display.products);
-      }, this.REFRESH_INTERVAL)
     }
   }
 
@@ -56,7 +52,6 @@ class Display extends Component {
     tmpProducts[index].active = !tmpProducts[index].active;
     this.props.display.products = tmpProducts;
     VBBApiActions.updateDisplay(this.props.index, this.props.display);
-    VBBApiActions.getDepartures(this.props.index, this.props.display.products);
   }
 
   render() {
@@ -116,10 +111,13 @@ class Display extends Component {
           <tr className="white-bars">
             <td/>
             <td colSpan="2">
-              <SearchField display={this.props.display}
-                           REFRESH_INTERVAL={this.REFRESH_INTERVAL}
-                           products={this.state.products}
-                           index={this.props.index} />
+              <div className={"d-flex justify-content-between"}>
+                <SearchField display={this.props.display}
+                             products={this.state.products}
+                             index={this.props.index} />
+                {(this.props.display.lines.length) ? <Filter display={this.props.display}
+                                                             index={this.props.index}/> : null}
+              </div>
             </td>
             <td colSpan="2">
               {this.props.display.products.map((product) => {

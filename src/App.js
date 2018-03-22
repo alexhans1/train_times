@@ -10,6 +10,7 @@ class App extends Component {
     this.state = {
       savedDisplays: JSON.parse(localStorage.getItem('displays')) || [],
     };
+    this.REFRESH_INTERVAL = 45 * 1000;
 
     this.getDisplays = this.getDisplays.bind(this);
   }
@@ -22,6 +23,13 @@ class App extends Component {
     VBBApiStore.removeListener('displayChange', this.getDisplays);
   }
 
+  componentDidMount() {
+    // initialize get departures interval
+    setInterval(() => {
+      VBBApiStore.updateAllDisplayDepartures();
+    }, this.REFRESH_INTERVAL);
+  }
+
   getDisplays() {
     this.setState({
       savedDisplays: VBBApiStore.getDisplays(),
@@ -32,6 +40,7 @@ class App extends Component {
     VBBApiActions.addDisplay({
       key: Date.now(),
       products: VBBApiStore.getDefaultProducts(),
+      lines: [],
     });
   }
 
