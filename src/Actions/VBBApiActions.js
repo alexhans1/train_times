@@ -37,3 +37,10 @@ export function updateDisplay(displayIndex, updatedDisplay) {
     updatedDisplay,
   });
 }
+
+export function getLines(displayIndex) {
+  dispatcher.dispatch({
+    type: "GET_LINES",
+    displayIndex,
+  });
+}

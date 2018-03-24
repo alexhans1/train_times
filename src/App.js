@@ -25,6 +25,7 @@ class App extends Component {
 
   componentDidMount() {
     // initialize get departures interval
+    VBBApiStore.updateAllLines();
     setInterval(() => {
       VBBApiStore.updateAllDisplayDepartures();
     }, this.REFRESH_INTERVAL);

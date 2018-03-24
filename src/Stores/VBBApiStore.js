@@ -4,13 +4,19 @@ import dispatcher from "../dispatcher";
 class VBBApiStore extends EventEmitter {
   constructor() {
     super();
-    if (!localStorage.getItem('displays')) {
-      // initialize with the two example events
+    try {
+      if (!localStorage.getItem('displays')) {
+        // initialize with the two example events
+        localStorage.setItem('displays', JSON.stringify([]));
+      }
+    } catch (ex) {
+      console.error(ex);
       localStorage.setItem('displays', JSON.stringify([]));
     }
     this.baseUrl = (process.env.NODE_ENV === 'production') ? 'https://berlin-train-times.herokuapp.com'
       : 'http://localhost:3100';
     this.displays = JSON.parse(localStorage.getItem('displays')) || [];
+
     this.defaultProducts = [
       {
         type: 'S',
@@ -134,6 +140,27 @@ class VBBApiStore extends EventEmitter {
     return this.displays[displayIndex].departures || [];
   }
 
+  getLines (displayIndex) {
+    try {
+      fetch(this.baseUrl + '/vbb/getLines/' + this.displays[displayIndex].extId)
+        .then(res => res.json())
+        .then(lines => {
+          this.displays[displayIndex].lines = lines;
+          this.emit('displayChange');
+        });
+    } catch (ex) {
+      console.error(ex);
+    }
+  }
+
+  updateAllLines () {
+    this.displays.forEach((display, index) => {
+      if (display.extId) {
+        this.getLines(index);
+      }
+    })
+  }
+
   getDefaultProducts () {
     return this.defaultProducts;
   }
@@ -158,6 +185,10 @@ class VBBApiStore extends EventEmitter {
       }
       case "UPDATE_DISPLAY": {
         this.updateDisplay(action.displayIndex, action.updatedDisplay);
+        break;
+      }
+      case "GET_LINES": {
+        this.getLines(action.displayIndex);
         break;
       }
       default: {

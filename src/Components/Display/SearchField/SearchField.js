@@ -59,23 +59,13 @@ class SearchField extends Component {
         locations: [],
       });
 
+
       let updatedDisplay = this.props.display;
-
-      try {
-        await fetch('http://localhost:3100/vbb/getLines/' + selectedLocation.extId)
-          .then(res => res.json())
-          .then(lines => {
-            console.log(lines);
-            updatedDisplay.lines = lines;
-          });
-      } catch (ex) {
-          console.error(ex)
-      }
-
       updatedDisplay.extId = selectedLocation.extId;
       updatedDisplay.station = selectedLocation.name;
       updatedDisplay.locations = [];
       VBBApiActions.updateDisplay(this.props.index, updatedDisplay);
+      VBBApiActions.getLines(this.props.index);
     }
   }
 
