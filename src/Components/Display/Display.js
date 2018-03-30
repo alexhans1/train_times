@@ -37,7 +37,11 @@ class Display extends Component {
   getDepartures() {
     const now = new Date();
     this.setState({
-      departures: VBBApiStore.getDepartures(this.props.index).sort((a, b) => { return (a.rtTime || a.time) > (b.rtTime || b.time) }),
+      departures: VBBApiStore.getDepartures(this.props.index).sort((a, b) => {
+        const x = new Date((a.rtDate || a.Date) + (a.rtTime || a.time));
+        const y = new Date((b.rtDate || b.Date) + (b.rtTime || b.time));
+        return x > y;
+      }),
       lastUpdated: now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes(),
     });
   }
