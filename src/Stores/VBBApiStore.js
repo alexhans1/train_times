@@ -1,6 +1,14 @@
 import {EventEmitter} from "events";
 import dispatcher from "../dispatcher";
 
+const parseResponse = (res) => {
+  if (res.error) {
+    console.error(res.message);
+    return [];
+  }
+  return res;
+};
+
 class VBBApiStore extends EventEmitter {
   constructor() {
     super();
@@ -86,6 +94,7 @@ class VBBApiStore extends EventEmitter {
       await fetch(this.baseUrl + '/vbb/searchLocations/' + input)
       .then(res => res.json())
       .then(locations => {
+        locations = parseResponse(locations);
         this.displays[displayIndex].locations = locations;
         this.emit('locationChange');
       });
@@ -120,6 +129,7 @@ class VBBApiStore extends EventEmitter {
       await fetch(fetchUrl)
       .then(res => res.json())
       .then(departures => {
+        departures = parseResponse(departures);
         this.displays[displayIndex].departures = departures;
         this.emit('departureChange');
       });
@@ -145,6 +155,10 @@ class VBBApiStore extends EventEmitter {
       fetch(this.baseUrl + '/vbb/getLines/' + this.displays[displayIndex].extId)
         .then(res => res.json())
         .then(lines => {
+          lines = parseResponse(lines);
+          if (lines.error) {
+
+          }
           this.displays[displayIndex].lines = lines;
           this.emit('displayChange');
         });
