@@ -9,6 +9,7 @@ class App extends Component {
     super();
     this.state = {
       savedDisplays: JSON.parse(localStorage.getItem('displays')) || [],
+      now: null,
     };
     this.REFRESH_INTERVAL = 45 * 1000;
 
@@ -29,6 +30,12 @@ class App extends Component {
     setInterval(() => {
       VBBApiStore.updateAllDisplayDepartures();
     }, this.REFRESH_INTERVAL);
+    setInterval(() => {
+      const date = new Date();
+      this.setState({
+        now: date.getHours() + ':' + date.getMinutes() + ':' + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds(),
+      });
+    })
   }
 
   getDisplays() {
@@ -48,6 +55,9 @@ class App extends Component {
   render() {
     return (
       <div className={"container-fluid"}>
+        <div className={"row d-flex justify-content-center"}>
+          <span className={"time"}>{this.state.now}</span>
+        </div>
         <div className="row">
           {this.state.savedDisplays.map((display, index) => {
             return <Display key={display.key}
