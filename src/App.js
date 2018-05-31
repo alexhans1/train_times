@@ -57,8 +57,13 @@ class App extends Component {
   render() {
     return (
       <div className={"container-fluid"}>
-        <div className={"row d-flex justify-content-center"}>
+        <div className={"row d-flex justify-content-around"}>
+          <span/>
           <span className={"time"}>{this.state.now}</span>
+          <div className={"row d-flex justify-content-around align-items-center"}>
+            <span className={"vbbCredit text-center"}>Powered by VBB GmbH</span>
+            <img className={"vbbLogo"} src="https://upload.wikimedia.org/wikipedia/commons/1/16/VBB-Logo.svg" alt=""/>
+          </div>
         </div>
         <div className="row">
           {this.state.savedDisplays.map((display, index) => {
