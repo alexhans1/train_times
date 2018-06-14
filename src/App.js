@@ -61,7 +61,10 @@ class App extends Component {
           <span/>
           <span className={"time"}>{this.state.now}</span>
           <div className={"row d-flex justify-content-around align-items-center"}>
-            <span className={"vbbCredit text-center"}>Powered by VBB GmbH</span>
+            <div className={"d-flex flex-column"}>
+              <span className={"vbbCredit text-center"}>Powered by VBB GmbH</span>
+              <span className={"vbbLiability"}>The correctness of the data cannot be guaranteed.</span>
+            </div>
             <img className={"vbbLogo"} src="https://upload.wikimedia.org/wikipedia/commons/1/16/VBB-Logo.svg" alt=""/>
           </div>
         </div>

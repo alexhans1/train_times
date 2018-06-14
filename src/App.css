@@ -10,6 +10,12 @@
   font-size: 40px;
 }
 
+.vbbLiability {
+  font-family: 'Matricha', 'Georgia', serif;
+  color: #efd189;
+  font-size: 15px;
+}
+
 .vbbLogo {
   height: 100px;
   margin-left: 30px;
