@@ -13,7 +13,7 @@ class Display extends Component {
 
     this.state = {
       departures: [],
-      lastUpdated: null,
+      lines: [],
     };
 
     this.getDepartures = this.getDepartures.bind(this);
@@ -29,20 +29,15 @@ class Display extends Component {
   }
 
   componentDidMount() {
-    if (this.props.display.extId) {
+    if (this.props.display.id) {
       VBBApiActions.getDepartures(this.props.index, this.props.display.products);
     }
   }
 
   getDepartures() {
-    const now = new Date();
     this.setState({
-      departures: VBBApiStore.getDepartures(this.props.index).sort((a, b) => {
-        const x = new Date((a.rtDate || a.Date) + (a.rtTime || a.time));
-        const y = new Date((b.rtDate || b.Date) + (b.rtTime || b.time));
-        return x > y;
-      }),
-      lastUpdated: now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes(),
+      departures: VBBApiStore.getDepartures(this.props.index),
+      lines: VBBApiStore.getLines(this.props.index),
     });
   }
 
@@ -64,12 +59,7 @@ class Display extends Component {
     for (let i = 0; i < 6; i++) {
       if (this.state.departures[i]) {
         const departure = this.state.departures[i];
-        const hasRealTimeData = !!(departure.rtDate && departure.rtTime);
-        const now = new Date();
-        const departureTime = new Date((departure.rtDate || departure.date) + ' ' + (departure.rtTime || departure.time));
-        let timeUntilDeparture = Math.round((departureTime - now) / 1000 / 60);
-        if (timeUntilDeparture < -100) timeUntilDeparture += 24 * 60; // adjust for day break
-        if (timeUntilDeparture <= 0 && timeUntilDeparture >= -100) timeUntilDeparture = '';
+        if (departure.timeUntilDeparture <= 1) departure.timeUntilDeparture = '';
         rows.push(
           <tr key={i} className="display-row">
             <td className="gray-side-bar"/>
@@ -77,8 +67,8 @@ class Display extends Component {
             <td>{departure.direction}</td>
             <td  data-toggle="tooltip"
                  data-placement="bottom"
-                 title={hasRealTimeData ? null : 'Time according to schedule. Real time data currently not available.'}>
-              {timeUntilDeparture}<span id={'realTimeNote'}>{hasRealTimeData ? '' : '*'}</span>
+                 title={departure.hasRealTimeData ? null : 'Time according to schedule. Real time data currently not available.'}>
+              {departure.timeUntilDeparture}<span id={'realTimeNote'}>{departure.hasRealTimeData ? '' : '*'}</span>
             </td>
             <td className="gray-side-bar"/>
           </tr>
@@ -119,8 +109,10 @@ class Display extends Component {
                 <SearchField display={this.props.display}
                              products={this.state.products}
                              index={this.props.index} />
-                {(this.props.display.lines.length) ? <Filter display={this.props.display}
-                                                             index={this.props.index}/> : null}
+                {(this.state.lines.length) ? <Filter key={this.props.index}
+                                                     display={this.props.display}
+                                                     lines={this.state.lines}
+                                                     index={this.props.index}/> : null}
               </div>
             </td>
             <td colSpan="2">

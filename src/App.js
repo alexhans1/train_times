@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Display from './Components/Display/Display';
+import Clock from './Components/Clock';
 import './App.css';
 import VBBApiStore from './Stores/VBBApiStore';
 import * as VBBApiActions from './Actions/VBBApiActions';
@@ -9,7 +10,6 @@ class App extends Component {
     super();
     this.state = {
       savedDisplays: JSON.parse(localStorage.getItem('displays')) || [],
-      now: null,
     };
     this.REFRESH_INTERVAL = 45 * 1000;
 
@@ -30,14 +30,6 @@ class App extends Component {
     setInterval(() => {
       VBBApiStore.updateAllDisplayDepartures();
     }, this.REFRESH_INTERVAL);
-    setInterval(() => {
-      const date = new Date();
-      this.setState({
-        now: (date.getHours() < 10 ? '0' : '') + date.getHours() + ':' +
-        (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' +
-        (date.getSeconds() < 10 ? '0' : '') + date.getSeconds(),
-      });
-    })
   }
 
   getDisplays() {
@@ -59,7 +51,7 @@ class App extends Component {
       <div className={"container-fluid"}>
         <div className={"row d-flex justify-content-around"}>
           <span/>
-          <span className={"time"}>{this.state.now}</span>
+          <Clock/>
           <div className={"row d-flex justify-content-around align-items-center"}>
             <div className={"d-flex flex-column"}>
               <span className={"vbbCredit text-center"}>Powered by VBB GmbH</span>

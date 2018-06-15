@@ -51,8 +51,8 @@ class SearchField extends Component {
     }
   }
 
-  async handleSelectLocation(e) {
-    const selectedLocation = this.state.locations.find(location => location.extId === e.target.value.toString());
+  handleSelectLocation(locationId) {
+    const selectedLocation = this.state.locations.find(location => location.id === locationId);
     if (selectedLocation) {
       this.setState({
         searchInput: selectedLocation.name,
@@ -61,9 +61,9 @@ class SearchField extends Component {
 
 
       let updatedDisplay = this.props.display;
-      updatedDisplay.extId = selectedLocation.extId;
+      updatedDisplay.id = selectedLocation.id;
       updatedDisplay.station = selectedLocation.name;
-      updatedDisplay.locations = [];
+      delete updatedDisplay['locations'];
       VBBApiActions.updateDisplay(this.props.index, updatedDisplay);
       VBBApiActions.getLines(this.props.index);
     }
@@ -76,8 +76,10 @@ class SearchField extends Component {
         <ul>
           {this.state.locations.map((location) => {
             return <li key={location.extId}
-                       value={location.extId}
-                       onClick={this.handleSelectLocation}>{location.name}</li>
+                       value={location.id}
+                       onClick={() => this.handleSelectLocation(location.id)}>
+              {location.name}
+            </li>
           })}
         </ul>
       </div>

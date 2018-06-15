@@ -1,5 +1,6 @@
 import {EventEmitter} from "events";
 import dispatcher from "../dispatcher";
+import uniqBy from 'lodash/uniqBy';
 
 const parseResponse = (res) => {
   if (res.error) {
@@ -14,7 +15,6 @@ class VBBApiStore extends EventEmitter {
     super();
     try {
       if (!localStorage.getItem('displays')) {
-        // initialize with the two example events
         localStorage.setItem('displays', JSON.stringify([]));
       }
     } catch (ex) {
@@ -79,7 +79,6 @@ class VBBApiStore extends EventEmitter {
       this.displays[displayIndex] = updatedDisplay;
       localStorage.setItem('displays', JSON.stringify(this.displays));
       this.getDeparturesOverApi(displayIndex);
-      this.emit('displayChange');
     } catch (ex) {
       console.error(ex);
     }
@@ -89,9 +88,9 @@ class VBBApiStore extends EventEmitter {
     return this.displays;
   }
 
-  async searchLocations (input, displayIndex) {
+  searchLocations (input, displayIndex) {
     try {
-      await fetch(this.baseUrl + '/vbb/searchLocations/' + input)
+      fetch(this.baseUrl + '/vbb/searchLocations/' + input)
       .then(res => res.json())
       .then(locations => {
         locations = parseResponse(locations);
@@ -107,11 +106,11 @@ class VBBApiStore extends EventEmitter {
     return this.displays[displayIndex].locations || [];
   }
 
-  async getDeparturesOverApi (displayIndex) {
+  getDeparturesOverApi (displayIndex) {
     console.info('Refreshing display #' + (displayIndex + 1));
 
     const display = this.displays[displayIndex];
-    let fetchUrl = this.baseUrl + '/vbb/getDepartures/' + display.extId;
+    let fetchUrl = this.baseUrl + '/vbb/getDepartures/' + display.id;
 
     // calculate products value
     let productsValue = 0;
@@ -122,15 +121,32 @@ class VBBApiStore extends EventEmitter {
     if (productsValue) {
       fetchUrl += '/' + productsValue;
     }
-    if (display.destinationId) {
-      fetchUrl += '?direction=' + display.destinationId;
-    }
     try {
-      await fetch(fetchUrl)
+      fetch(fetchUrl)
       .then(res => res.json())
       .then(departures => {
         departures = parseResponse(departures);
-        this.displays[displayIndex].departures = departures;
+
+        // apply filter if necessary
+        const filterDirections = this.displays[displayIndex].lines.filter((line) => {
+          return line.include
+        }).map(({direction}) => direction);
+        if (filterDirections !== [] && filterDirections.length !== this.displays[displayIndex].lines.length) {
+          this.displays[displayIndex].departures = departures.filter((departure) => {
+            return filterDirections.includes(departure.direction);
+          });
+        } else this.displays[displayIndex].departures = departures;
+
+
+        // set lines attribute for display
+        this.displays[displayIndex].lines = uniqBy(this.displays[displayIndex].lines.concat(...departures.map((departure) => {
+          return {
+            line: departure.line,
+            direction: departure.direction,
+            include: true,
+          }
+        })), 'direction');
+
         this.emit('departureChange');
       });
     } catch (ex) {
@@ -140,7 +156,7 @@ class VBBApiStore extends EventEmitter {
 
   updateAllDisplayDepartures () {
     this.displays.forEach((display, index) => {
-      if (display.extId) {
+      if (display.id) {
         this.getDeparturesOverApi(index)
       }
     })
@@ -151,25 +167,12 @@ class VBBApiStore extends EventEmitter {
   }
 
   getLines (displayIndex) {
-    try {
-      fetch(this.baseUrl + '/vbb/getLines/' + this.displays[displayIndex].extId)
-        .then(res => res.json())
-        .then(lines => {
-          lines = parseResponse(lines);
-          if (lines.error) {
-
-          }
-          this.displays[displayIndex].lines = lines;
-          this.emit('displayChange');
-        });
-    } catch (ex) {
-      console.error(ex);
-    }
+    return this.displays[displayIndex].lines || [];
   }
 
   updateAllLines () {
     this.displays.forEach((display, index) => {
-      if (display.extId) {
+      if (display.id) {
         this.getLines(index);
       }
     })
