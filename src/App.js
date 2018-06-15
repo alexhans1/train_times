@@ -49,15 +49,17 @@ class App extends Component {
   render() {
     return (
       <div className={"container-fluid"}>
-        <div className={"row d-flex justify-content-around"}>
+        <div className={"row d-flex justify-content-around mb-3"}>
           <span/>
-          <Clock/>
-          <div className={"row d-flex justify-content-around align-items-center"}>
-            <div className={"d-flex flex-column"}>
+          <div className={'d-none d-lg-block'}>
+            <Clock/>
+          </div>
+          <div className={"d-flex align-items-center"}>
+            <div className={"d-flex flex-column align-items-end"}>
               <span className={"vbbCredit text-center"}>Powered by VBB GmbH</span>
               <span className={"vbbLiability"}>The correctness of the data cannot be guaranteed.</span>
             </div>
-            <img className={"vbbLogo"} src="https://upload.wikimedia.org/wikipedia/commons/1/16/VBB-Logo.svg" alt=""/>
+            <img className={"vbbLogo d-none d-sm-block"} src="https://upload.wikimedia.org/wikipedia/commons/1/16/VBB-Logo.svg" alt=""/>
           </div>
         </div>
         <div className="row">

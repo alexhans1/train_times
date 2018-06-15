@@ -1,7 +1,7 @@
 .time {
   font-family: 'Matricha', 'Georgia', serif;
   color: #efd189;
-  font-size: 70px;
+  font-size: 4.2rem;
 }
 
 .vbbCredit {
@@ -15,8 +15,13 @@
   color: #efd189;
   font-size: 15px;
 }
+@media only screen and (max-width: 575px) {
+  .vbbLiability {
+    text-align: center;
+  }
+}
 
 .vbbLogo {
-  height: 100px;
+  height: 70px;
   margin-left: 30px;
 }

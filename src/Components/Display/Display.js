@@ -88,48 +88,51 @@ class Display extends Component {
 
     return (
       <div className="col-12 col-lg-6 mb-3">
-        <table cellPadding="0" cellSpacing="0">
-          <tbody>
-          <tr className="white-bars">
-            <td/>
-            <td>Line</td>
-            <td>Destination</td>
-            <td colSpan="2" className={"d-flex justify-content-between"}>
-              Departure in
-              <button id={"removeDisplay"} className="btn btn-outline-dark" onClick={this.handleRemoveDisplay.bind(this)}>x</button>
-            </td>
-          </tr>
-          {rows.map((row) => {
-            return row;
-          })}
-          <tr className="white-bars">
-            <td/>
-            <td colSpan="2">
-              <div className={"d-flex justify-content-between"}>
-                <SearchField display={this.props.display}
-                             products={this.state.products}
-                             index={this.props.index} />
-                {(this.state.lines.length) ? <Filter key={this.props.index}
-                                                     display={this.props.display}
-                                                     lines={this.state.lines}
-                                                     index={this.props.index}/> : null}
-              </div>
-            </td>
-            <td colSpan="2">
-              {this.props.display.products.map((product) => {
-                const className = 'productType' + (product.active ? ' active' : '');
-                return (
-                  <span key={product.type}
-                        onClick={() => { this.handleSetProducts(product.type) }}
-                        className={className}>
+        <div className={'px-2'}>
+          <table cellPadding="0" cellSpacing="0">
+            <tbody>
+            <tr className="white-bars">
+              <td/>
+              <td>Line</td>
+              <td>Destination</td>
+              <td colSpan="2" className={"d-flex justify-content-between"}>
+                Departure in
+                <button id={"removeDisplay"} className="btn btn-outline-dark" onClick={this.handleRemoveDisplay.bind(this)}>x</button>
+              </td>
+              <td/>
+            </tr>
+            {rows.map((row) => {
+              return row;
+            })}
+            <tr className="white-bars">
+              <td/>
+              <td colSpan="2">
+                <div className={"d-flex justify-content-between"}>
+                  <SearchField display={this.props.display}
+                               products={this.state.products}
+                               index={this.props.index} />
+                  {(this.state.lines.length) ? <Filter key={this.props.index}
+                                                       display={this.props.display}
+                                                       lines={this.state.lines}
+                                                       index={this.props.index}/> : null}
+                </div>
+              </td>
+              <td colSpan="2">
+                {this.props.display.products.map((product) => {
+                  const className = 'productType' + (product.active ? ' active' : '');
+                  return (
+                    <span key={product.type}
+                          onClick={() => { this.handleSetProducts(product.type) }}
+                          className={className}>
                     {product.type}
                   </span>
-                )
-              })}
-            </td>
-          </tr>
-          </tbody>
-        </table>
+                  )
+                })}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     );

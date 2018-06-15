@@ -34,9 +34,6 @@ div[class^='col-'], div[class*='col-'] {
   height: 40px;
 }
 
-.display-row td:first-child, .display-row td:nth-child(5) {
-  /*paddin0g-right: 50px;*/
-}
 .display-row td:nth-child(2) {
   font-family: 'Ozone', 'Georgia', serif !important;
   padding-right: 30px;
@@ -50,11 +47,6 @@ div[class^='col-'], div[class*='col-'] {
   padding-right: 2px;
 }
 
-#removeDisplay {
-  /*position: absolute;*/
-  /*right: 3px;*/
-  /*top: 3px;*/
-}
 #removeDisplay {
   font-size: 9px;
 }
