@@ -72,7 +72,7 @@ class Filter extends Component {
             })}
             <hr/>
             <button className={'btn btn-outline-dark btn-sm'} onClick={() => {this.handleSelectAll(hasLinesSelected)}}>
-              {hasLinesSelected ? 'Select All' : 'Deselect All'}
+              {hasLinesSelected ? 'Deselect All' : 'Select All'}
             </button>
           </div>
         </div>
